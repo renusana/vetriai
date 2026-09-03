@@ -1,7 +1,5 @@
 import os
 
-from django.conf import settings
-
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
@@ -9,18 +7,27 @@ from googleapiclient.discovery import build
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 
-def get_credentials_file():
-    return os.path.join(
-        settings.BASE_DIR,
-        "google_credentials.json",
+def create_google_flow():
+    client_id = os.getenv("GOOGLE_CLIENT_ID")
+    client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
+    redirect_uri = os.getenv(
+        "GOOGLE_REDIRECT_URI",
+        "http://127.0.0.1:8000/api/calendar/oauth2callback/",
     )
 
+    client_config = {
+        "web": {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+    }
 
-def create_google_flow():
-    flow = Flow.from_client_secrets_file(
-        get_credentials_file(),
+    flow = Flow.from_client_config(
+        client_config,
         scopes=SCOPES,
-        redirect_uri="http://127.0.0.1:8000/api/calendar/oauth2callback/",
+        redirect_uri=redirect_uri,
     )
 
     return flow
