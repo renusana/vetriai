@@ -1,0 +1,791 @@
+/* =========================================================
+   AGENT ORCHESTRATOR PAGE
+========================================================= */
+
+.agent-orchestrator-page {
+    width: 100%;
+    min-height: 100%;
+}
+
+.agent-orchestrator-container {
+    padding-top: 28px;
+    padding-bottom: 40px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.ao-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.ao-title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.ao-title-icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #e0e7ff;
+    color: #2563eb;
+
+    font-size: 24px;
+}
+
+.ao-page-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.ao-page-subtitle {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.ao-system-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 9px 14px;
+
+    border: 1px solid #d1fae5;
+    border-radius: 50px;
+
+    background: #ecfdf5;
+    color: #047857;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.ao-status-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+    background: #10b981;
+}
+
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.ao-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+
+    border-radius: 10px;
+    margin-bottom: 20px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   COMMON CARDS
+========================================================= */
+
+.ao-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.ao-card-header {
+    min-height: 68px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 15px 20px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ao-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.ao-section-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    font-size: 18px;
+}
+
+.ao-section-heading h5 {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.ao-section-heading small {
+    display: block;
+    margin-top: 3px;
+
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.ao-agent-count {
+    flex-shrink: 0;
+}
+
+.ao-card-body {
+    padding: 22px;
+}
+
+
+/* =========================================================
+   AGENT CARDS
+========================================================= */
+
+.ao-agent-card {
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.ao-agent-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #bfdbfe;
+
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+}
+
+.ao-agent-main {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 13px;
+
+    padding: 18px;
+}
+
+.ao-agent-icon {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dbeafe;
+    color: #2563eb;
+
+    font-size: 19px;
+}
+
+.ao-agent-content {
+    min-width: 0;
+}
+
+.ao-agent-name {
+    margin: 2px 0 7px;
+
+    color: #111827;
+    font-size: 15px;
+    font-weight: 700;
+
+    overflow-wrap: anywhere;
+}
+
+.ao-agent-description {
+    margin: 0;
+
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.55;
+
+    overflow-wrap: anywhere;
+}
+
+.ao-agent-footer {
+    margin-top: auto;
+
+    padding: 12px 18px;
+
+    border-top: 1px solid #f1f5f9;
+    background: #fafafa;
+}
+
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.ao-empty-state {
+    min-height: 180px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.ao-empty-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+    color: #9ca3af;
+
+    font-size: 25px;
+
+    margin-bottom: 12px;
+}
+
+.ao-empty-state h6 {
+    margin-bottom: 5px;
+    color: #374151;
+}
+
+
+/* =========================================================
+   ORCHESTRATION FLOW
+========================================================= */
+
+.ao-flow-step {
+    position: relative;
+
+    height: 100%;
+    min-height: 190px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 25px 18px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.ao-flow-step:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07);
+}
+
+.ao-flow-number {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    color: #9ca3af;
+}
+
+.ao-flow-icon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 12px;
+
+    border-radius: 14px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    font-size: 22px;
+}
+
+.ao-flow-step h6 {
+    margin-bottom: 6px;
+
+    color: #111827;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.ao-flow-step small {
+    max-width: 220px;
+
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.ao-form-label {
+    margin-bottom: 7px;
+
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ao-form-control {
+    min-height: 44px;
+
+    border-color: #d1d5db;
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+textarea.ao-form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.ao-form-control:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
+}
+
+
+/* =========================================================
+   EMAIL PARAMETERS
+========================================================= */
+
+.ao-email-section {
+    margin-top: 22px;
+    padding: 20px;
+
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+
+    background: #f8fbff;
+}
+
+.ao-email-heading {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    margin-bottom: 18px;
+}
+
+.ao-email-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.ao-email-heading h6 {
+    color: #111827;
+    font-weight: 700;
+}
+
+.ao-email-heading small {
+    color: #6b7280;
+}
+
+.ao-form-actions {
+    display: flex;
+    justify-content: flex-start;
+
+    margin-top: 20px;
+}
+
+.ao-primary-button {
+    min-height: 44px;
+    padding: 9px 18px;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   PENDING APPROVAL
+========================================================= */
+
+.ao-pending-card {
+    border: 1px solid #f59e0b;
+}
+
+.ao-pending-header {
+    background: #fffbeb;
+
+    border-bottom-color: #fde68a;
+}
+
+.ao-warning-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.ao-detail-box {
+    min-height: 72px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 12px 15px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+
+    background: #fafafa;
+
+    min-width: 0;
+}
+
+.ao-detail-label {
+    margin-bottom: 5px;
+
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ao-detail-box strong {
+    color: #111827;
+    font-size: 14px;
+
+    overflow-wrap: anywhere;
+}
+
+.ao-action-id {
+    font-family: monospace;
+    word-break: break-all;
+}
+
+.ao-parameters-section {
+    margin-top: 5px;
+}
+
+.ao-parameters-heading {
+    margin-bottom: 8px;
+
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.ao-parameters {
+    width: 100%;
+    max-width: 100%;
+
+    margin: 0;
+
+    padding: 15px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+
+    background: #f8fafc;
+
+    color: #374151;
+
+    font-family: "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    overflow-x: auto;
+}
+
+.ao-pending-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.ao-pending-actions .btn {
+    min-height: 42px;
+    padding: 8px 17px;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   TABLET
+   768px - 1023px
+========================================================= */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    .agent-orchestrator-container {
+        padding: 24px 20px 35px;
+    }
+
+    .ao-page-title {
+        font-size: 25px;
+    }
+
+    .ao-page-header {
+        margin-bottom: 22px;
+    }
+
+    .ao-card-body {
+        padding: 18px;
+    }
+
+    .ao-flow-step {
+        min-height: 175px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   0px - 767px
+========================================================= */
+
+@media (max-width: 767px) {
+
+    .agent-orchestrator-container {
+        padding: 20px 14px 30px;
+    }
+
+    .ao-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+
+        margin-bottom: 20px;
+    }
+
+    .ao-title-row {
+        align-items: flex-start;
+    }
+
+    .ao-title-icon {
+        width: 44px;
+        height: 44px;
+
+        border-radius: 11px;
+
+        font-size: 20px;
+    }
+
+    .ao-page-title {
+        font-size: 22px;
+        line-height: 1.25;
+    }
+
+    .ao-page-subtitle {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .ao-system-status {
+        align-self: flex-start;
+
+        padding: 8px 12px;
+
+        font-size: 12px;
+    }
+
+    .ao-card {
+        border-radius: 11px;
+    }
+
+    .ao-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+
+        padding: 14px 15px;
+    }
+
+    .ao-section-heading {
+        width: 100%;
+    }
+
+    .ao-agent-count {
+        align-self: flex-start;
+    }
+
+    .ao-card-body {
+        padding: 15px;
+    }
+
+    .ao-agent-main {
+        padding: 16px;
+    }
+
+    .ao-agent-footer {
+        padding: 11px 16px;
+    }
+
+    .ao-flow-step {
+        min-height: 155px;
+        padding: 22px 15px;
+    }
+
+    .ao-email-section {
+        padding: 15px;
+    }
+
+    .ao-form-actions {
+        width: 100%;
+    }
+
+    .ao-primary-button {
+        width: 100%;
+    }
+
+    .ao-pending-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .ao-pending-actions .btn {
+        width: 100%;
+    }
+
+    .ao-detail-box {
+        min-height: 65px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   <= 380px
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .agent-orchestrator-container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .ao-title-row {
+        gap: 10px;
+    }
+
+    .ao-title-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .ao-page-title {
+        font-size: 20px;
+    }
+
+    .ao-page-subtitle {
+        font-size: 12px;
+    }
+
+    .ao-card-body {
+        padding: 12px;
+    }
+
+    .ao-section-heading {
+        gap: 9px;
+    }
+
+    .ao-section-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+}
