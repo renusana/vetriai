@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 
-# Allow OAuth over HTTP for local development only
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,12 +26,19 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-zf8eap7)fy3+x@=uzkaa-h6vr)$rn2$abw4xzt1c@oei9b_&9-"
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-zf8eap7)fy3+x@=uzkaa-h6vr)$rn2$abw4xzt1c@oei9b_&9-")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1",
+).split(",")
+
+# Allow OAuth over HTTP only during local development
+if DEBUG:
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 
 # Application definition
