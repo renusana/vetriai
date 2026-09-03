@@ -38,22 +38,60 @@ class AgentRegistry:
 
     def find_agent(self, request):
         """
-        Return the first matching agent.
+        Return the best matching agent.
 
-        This method preserves the existing single-agent
-        routing behavior.
+        GitHub-specific requests are checked first so that
+        generic reporting keywords such as "summary" do not
+        incorrectly capture GitHub requests.
         """
 
         print("USER REQUEST:", request)
 
+        request_lower = request.lower()
+
+        # -------------------------------------------------
+        # GitHub-specific priority
+        # -------------------------------------------------
+
+        github_keywords = [
+            "github",
+            "git",
+            "repository",
+            "repositories",
+            "repo",
+            "repos",
+            "pull request",
+            "pull requests",
+            "git status",
+            "repository status",
+        ]
+
+        if any(keyword in request_lower for keyword in github_keywords):
+
+            for agent in self.agents:
+
+                if agent.name == "GitHub Agent":
+
+                    print("SELECTED AGENT:", agent.name)
+
+                    return agent
+
+        # -------------------------------------------------
+        # Normal agent routing
+        # -------------------------------------------------
+
         for agent in self.agents:
+
             print("CHECKING AGENT:", agent.name)
 
             if agent.can_handle(request):
+
                 print("SELECTED AGENT:", agent.name)
+
                 return agent
 
         print("NO AGENT FOUND")
+
         return None
 
     def find_agents(self, request):
@@ -66,13 +104,17 @@ class AgentRegistry:
         matched_agents = []
 
         for agent in self.agents:
+
             print("CHECKING AGENT:", agent.name)
 
             if agent.can_handle(request):
+
                 print("MATCHED AGENT:", agent.name)
+
                 matched_agents.append(agent)
 
         if not matched_agents:
+
             print("NO AGENTS FOUND")
 
         return matched_agents
