@@ -458,11 +458,54 @@ def agents_api(request):
     Return all available AI agents.
     """
 
-    orchestrator = AIOrchestrator()
-
     return Response(
         {
             "status": "success",
-            "agents": orchestrator.get_available_agents(),
+            "agents": [
+                {
+                    "name": "Calendar Agent",
+                    "description": "Handles Google Calendar events and calendar-related questions",
+                },
+                {
+                    "name": "HR Agent",
+                    "description": "Handles employee and HR-related questions",
+                },
+                {
+                    "name": "Sales Agent",
+                    "description": "Handles sales and CRM-related questions",
+                },
+                {
+                    "name": "Project Agent",
+                    "description": "Handles project and task-related questions",
+                },
+                {
+                    "name": "Finance Agent",
+                    "description": "Handles finance and financial summary questions",
+                },
+                {
+                    "name": "Marketing Agent",
+                    "description": "Handles marketing-related questions",
+                },
+                {
+                    "name": "Developer Agent",
+                    "description": "Handles software development questions",
+                },
+                {
+                    "name": "QA Agent",
+                    "description": "Handles quality assurance and testing questions",
+                },
+                {
+                    "name": "Operations Agent",
+                    "description": "Handles business operations and workflow questions",
+                },
+                {
+                    "name": "Reporting Agent",
+                    "description": "Handles business reports and summaries",
+                },
+                {
+                    "name": "GitHub Agent",
+                    "description": "Handles GitHub repository and cloud development questions",
+                },
+            ],
         }
     )
