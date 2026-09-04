@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api/approvals";
+const API_BASE_URL =
+    "https://vetri-ai-backend-9maw.onrender.com/api/approvals";
+
 
 function getAuthHeaders() {
     const accessToken = localStorage.getItem("access_token");
@@ -13,33 +15,40 @@ function getAuthHeaders() {
     };
 }
 
+
 export async function createApprovalPreview({
     agent_name,
     tool_name,
     action,
     parameters = {},
 }) {
-    const response = await fetch(`${API_BASE_URL}/preview/`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-            agent_name,
-            tool_name,
-            action,
-            parameters,
-        }),
-    });
+    const response = await fetch(
+        `${API_BASE_URL}/preview/`,
+        {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                agent_name,
+                tool_name,
+                action,
+                parameters,
+            }),
+        }
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
         throw new Error(
-            data.message || data.detail || "Failed to create approval preview"
+            data.message ||
+            data.detail ||
+            "Failed to create approval preview"
         );
     }
 
     return data;
 }
+
 
 export async function getApprovals(status = "") {
     const query = status
@@ -68,7 +77,6 @@ export async function getApprovals(status = "") {
 }
 
 
-
 export async function getApproval(actionId) {
     const response = await fetch(
         `${API_BASE_URL}/${actionId}/`,
@@ -82,12 +90,15 @@ export async function getApproval(actionId) {
 
     if (!response.ok) {
         throw new Error(
-            data.message || data.detail || "Failed to get approval"
+            data.message ||
+            data.detail ||
+            "Failed to get approval"
         );
     }
 
     return data;
 }
+
 
 export async function approveAction(actionId) {
     const response = await fetch(
@@ -102,14 +113,20 @@ export async function approveAction(actionId) {
 
     if (!response.ok) {
         throw new Error(
-            data.message || data.detail || "Failed to approve action"
+            data.message ||
+            data.detail ||
+            "Failed to approve action"
         );
     }
 
     return data;
 }
 
-export async function editApproval(actionId, parameters) {
+
+export async function editApproval(
+    actionId,
+    parameters
+) {
     const response = await fetch(
         `${API_BASE_URL}/${actionId}/edit/`,
         {
@@ -125,12 +142,15 @@ export async function editApproval(actionId, parameters) {
 
     if (!response.ok) {
         throw new Error(
-            data.message || data.detail || "Failed to edit action"
+            data.message ||
+            data.detail ||
+            "Failed to edit action"
         );
     }
 
     return data;
 }
+
 
 export async function cancelAction(actionId) {
     const response = await fetch(
@@ -145,7 +165,9 @@ export async function cancelAction(actionId) {
 
     if (!response.ok) {
         throw new Error(
-            data.message || data.detail || "Failed to cancel action"
+            data.message ||
+            data.detail ||
+            "Failed to cancel action"
         );
     }
 
