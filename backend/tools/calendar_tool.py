@@ -37,10 +37,15 @@ class CalendarTool:
 
             service = get_calendar_service(google_credentials)
 
-            from datetime import datetime, timedelta, timezone
+            from datetime import datetime, timedelta
+            from zoneinfo import ZoneInfo
 
-            now = datetime.now(timezone.utc)
+            # Use India Standard Time for calendar date calculations
+            india_timezone = ZoneInfo("Asia/Kolkata")
 
+            now = datetime.now(india_timezone)
+
+            # Start of today in India
             start_of_today = now.replace(
                 hour=0,
                 minute=0,

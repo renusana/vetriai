@@ -157,11 +157,19 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+    "https://vetri-ai-backend-9maw.onrender.com",
+]
+
+# Google OAuth session must work across
+# localhost React -> Render Django.
 SESSION_COOKIE_SAMESITE = "None"
-
-SESSION_COOKIE_HTTPONLY = True
-
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
