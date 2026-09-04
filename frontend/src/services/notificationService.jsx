@@ -1,5 +1,6 @@
+const API_BASE_URL =
+    "https://vetri-ai-backend-9maw.onrender.com/api/notifications";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/notifications";
 
 export async function getNotifications(accessToken) {
     const response = await fetch(`${API_BASE_URL}/`, {
@@ -13,13 +14,19 @@ export async function getNotifications(accessToken) {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.detail || "Failed to fetch notifications");
+        throw new Error(
+            data.detail || "Failed to fetch notifications"
+        );
     }
 
     return data;
 }
 
-export async function getNotification(notificationId, accessToken) {
+
+export async function getNotification(
+    notificationId,
+    accessToken
+) {
     const response = await fetch(
         `${API_BASE_URL}/${notificationId}/`,
         {
@@ -34,11 +41,14 @@ export async function getNotification(notificationId, accessToken) {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.detail || "Failed to fetch notification");
+        throw new Error(
+            data.detail || "Failed to fetch notification"
+        );
     }
 
     return data;
 }
+
 
 export async function markNotificationRead(
     notificationId,
@@ -65,4 +75,3 @@ export async function markNotificationRead(
 
     return data;
 }
-
