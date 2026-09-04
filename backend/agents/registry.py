@@ -33,7 +33,6 @@ class AgentRegistry:
         ]
 
     def get_agents(self):
-
         return self.agents
 
     def find_agent(self, request):
@@ -64,8 +63,42 @@ class AgentRegistry:
         if any(keyword in request_lower for keyword in hr_keywords):
 
             for agent in self.agents:
-
                 if agent.name == "HR Agent":
+
+                    print("SELECTED AGENT:", agent.name)
+
+                    return agent
+
+        # -------------------------------------------------
+        # Reporting-specific priority
+        # -------------------------------------------------
+
+        reporting_keywords = [
+            "report",
+            "reports",
+            "reporting",
+            "business report",
+            "business reports",
+            "business reporting",
+            "business summary",
+            "business performance",
+            "overall business",
+            "overall business performance",
+            "overall business report",
+            "bo report",
+            "daily report",
+            "generate report",
+            "generate a report",
+            "show report",
+            "show me the report",
+            "report summary",
+            "reporting summary",
+        ]
+
+        if any(keyword in request_lower for keyword in reporting_keywords):
+
+            for agent in self.agents:
+                if agent.name == "Reporting Agent":
 
                     print("SELECTED AGENT:", agent.name)
 
@@ -91,7 +124,6 @@ class AgentRegistry:
         if any(keyword in request_lower for keyword in github_keywords):
 
             for agent in self.agents:
-
                 if agent.name == "GitHub Agent":
 
                     print("SELECTED AGENT:", agent.name)
