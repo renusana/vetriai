@@ -120,6 +120,11 @@ def chat_api(request):
     # Get Google Calendar credentials from session
     google_credentials = request.session.get("google_calendar_credentials")
 
+    print(
+        "GOOGLE CALENDAR CREDENTIALS PRESENT:",
+        bool(google_credentials),
+    )
+
     # Process request through multi-agent system
     result = orchestrator.process_request(
         request=message,

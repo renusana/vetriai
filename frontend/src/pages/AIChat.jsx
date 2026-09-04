@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import "./AIChat.css";
 
+const API_BASE_URL =
+  "https://vetri-ai-backend-9maw.onrender.com/api";
+
 function AIChat() {
   const [messages, setMessages] = useState([
     {
@@ -36,7 +39,7 @@ function AIChat() {
          * the currently authenticated user.
          */
         const response = await fetch(
-          "http://127.0.0.1:8000/api/conversations/",
+          `${API_BASE_URL}/conversations/`,
           {
             method: "GET",
             credentials: "include",
@@ -68,7 +71,7 @@ function AIChat() {
            * all messages.
            */
           const detailResponse = await fetch(
-            `http://127.0.0.1:8000/api/conversations/${latestConversation.id}/`,
+            `${API_BASE_URL}/conversations/${latestConversation.id}/`,
             {
               method: "GET",
               credentials: "include",
@@ -155,6 +158,22 @@ function AIChat() {
 
     const accessToken = localStorage.getItem("access_token");
 
+    if (!accessToken) {
+      setIsLoading(false);
+
+      const aiMessage = {
+        sender: "ai",
+        text: "You are not logged in. Please login again.",
+      };
+
+      setMessages((previousMessages) => [
+        ...previousMessages,
+        aiMessage,
+      ]);
+
+      return;
+    }
+
     try {
       /*
        * Send the conversation ID when available.
@@ -170,8 +189,17 @@ function AIChat() {
         requestBody.conversation_id = conversationId;
       }
 
+      /*
+       * IMPORTANT:
+       *
+       * credentials: "include"
+       * sends the Django session cookie.
+       *
+       * This is required for Google Calendar OAuth
+       * credentials stored in the Django session.
+       */
       const response = await fetch(
-        "http://127.0.0.1:8000/api/chat/",
+        `${API_BASE_URL}/chat/`,
         {
           method: "POST",
           credentials: "include",
@@ -270,7 +298,6 @@ function AIChat() {
 
       </div>
 
-
       {/* Chat Container */}
 
       <div className="ai-chat-container">
@@ -303,7 +330,6 @@ function AIChat() {
           </div>
 
         </div>
-
 
         {/* Messages */}
 
@@ -370,14 +396,13 @@ function AIChat() {
               </div>
             )}
 
-
           {messages.map((message, index) => (
 
             <div
               key={index}
               className={`ai-message-row ${message.sender === "user"
-                ? "user-message-row"
-                : "ai-message-row-left"
+                  ? "user-message-row"
+                  : "ai-message-row-left"
                 }`}
             >
 
@@ -389,11 +414,10 @@ function AIChat() {
                 </div>
               )}
 
-
               <div
                 className={`ai-message ${message.sender === "user"
-                  ? "user-message"
-                  : "assistant-message"
+                    ? "user-message"
+                    : "assistant-message"
                   }`}
               >
 
@@ -407,29 +431,35 @@ function AIChat() {
                   {message.text}
                 </div>
 
-                {message.sender === "ai" && message.metadata && (
-                  <div className="ai-message-metadata">
-                    <div>
-                      <strong>Source:</strong>{" "}
-                      {message.metadata.source || "Vetri AI"}
-                    </div>
+                {message.sender === "ai" &&
+                  message.metadata && (
+                    <div className="ai-message-metadata">
 
-                    <div>
-                      <strong>Updated:</strong>{" "}
-                      {message.metadata.updated_at
-                        ? new Date(message.metadata.updated_at).toLocaleString()
-                        : "Not available"}
-                    </div>
+                      <div>
+                        <strong>Source:</strong>{" "}
+                        {message.metadata.source ||
+                          "Vetri AI"}
+                      </div>
 
-                    <div>
-                      <strong>Confidence:</strong>{" "}
-                      {message.metadata.confidence || "Not available"}
+                      <div>
+                        <strong>Updated:</strong>{" "}
+                        {message.metadata.updated_at
+                          ? new Date(
+                            message.metadata.updated_at
+                          ).toLocaleString()
+                          : "Not available"}
+                      </div>
+
+                      <div>
+                        <strong>Confidence:</strong>{" "}
+                        {message.metadata.confidence ||
+                          "Not available"}
+                      </div>
+
                     </div>
-                  </div>
-                )}
+                  )}
 
               </div>
-
 
               {/* User Avatar */}
 
@@ -442,7 +472,6 @@ function AIChat() {
             </div>
 
           ))}
-
 
           {/* Loading */}
 
@@ -473,7 +502,6 @@ function AIChat() {
           <div ref={messagesEndRef}></div>
 
         </div>
-
 
         {/* Input */}
 
