@@ -14,13 +14,13 @@ from .models import UserProfile, Conversation, ChatMessage
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
 from permissions.permission_engine import PermissionEngine
 from agents.orchestrator import AIOrchestrator
 
 
 @api_view(["GET"])
 def hello_api(request):
-
     return Response(
         {
             "success": True,
@@ -31,7 +31,6 @@ def hello_api(request):
 
 
 def get_user_role(user):
-
     # Superuser is always treated as admin
     if user.is_superuser:
         return "admin"
@@ -49,7 +48,10 @@ def get_user_role(user):
 @permission_classes([IsAuthenticated])
 def chat_api(request):
 
+    # -------------------------------------------------
     # Get message from React/frontend
+    # -------------------------------------------------
+
     message = request.data.get("message")
 
     # Get conversation ID from React/frontend
@@ -65,10 +67,12 @@ def chat_api(request):
             status=400,
         )
 
-    # Get current user
+    # -------------------------------------------------
+    # Current User
+    # -------------------------------------------------
+
     user = request.user
 
-    # Get application role
     role = get_user_role(user)
 
     print("USER REQUEST:", message)
@@ -98,13 +102,15 @@ def chat_api(request):
 
     else:
 
-        # Create a new conversation automatically
         conversation = Conversation.objects.create(
             user=user,
             title="New Conversation",
         )
 
-    # Save user message
+    # -------------------------------------------------
+    # Save User Message
+    # -------------------------------------------------
+
     ChatMessage.objects.create(
         conversation=conversation,
         sender="user",
@@ -112,26 +118,53 @@ def chat_api(request):
     )
 
     # -------------------------------------------------
-    # AI Orchestrator
+    # AI Orchestrator + Google Calendar Debug
     # -------------------------------------------------
 
-    orchestrator = AIOrchestrator()
+    try:
 
-    # Get Google Calendar credentials from session
-    google_credentials = request.session.get("google_calendar_credentials")
+        print("STEP 1: Creating AIOrchestrator")
 
-    print(
-        "GOOGLE CALENDAR CREDENTIALS PRESENT:",
-        bool(google_credentials),
-    )
+        orchestrator = AIOrchestrator()
 
-    # Process request through multi-agent system
-    result = orchestrator.process_request(
-        request=message,
-        user=user,
-        role=role,
-        credentials=google_credentials,
-    )
+        print("STEP 2: Getting Google Calendar credentials")
+
+        google_credentials = request.session.get("google_calendar_credentials")
+
+        # Do NOT print the actual credentials.
+        # Only print whether credentials exist.
+        print(
+            "GOOGLE CALENDAR CREDENTIALS PRESENT:",
+            bool(google_credentials),
+        )
+
+        print("STEP 3: Calling orchestrator.process_request")
+
+        result = orchestrator.process_request(
+            request=message,
+            user=user,
+            role=role,
+            credentials=google_credentials,
+        )
+
+        print("STEP 4: Orchestrator completed successfully")
+
+    except Exception as error:
+
+        import traceback
+
+        print("========== CHAT API ERROR ==========")
+        print("ERROR:", str(error))
+        traceback.print_exc()
+        print("====================================")
+
+        return Response(
+            {
+                "status": "error",
+                "message": "Chat processing failed.",
+            },
+            status=500,
+        )
 
     # -------------------------------------------------
     # Confidence & Source Information
@@ -147,7 +180,7 @@ def chat_api(request):
     }
 
     # -------------------------------------------------
-    # Save AI response
+    # Save AI Response
     # -------------------------------------------------
 
     assistant_response = result.get(
@@ -227,11 +260,14 @@ def conversation_detail_api(request, conversation_id):
     user = request.user
 
     try:
+
         conversation = Conversation.objects.get(
             id=conversation_id,
             user=user,
         )
+
     except Conversation.DoesNotExist:
+
         return Response(
             {
                 "status": "error",
@@ -276,7 +312,10 @@ def current_user_api(request):
             "username": user.username,
             "name": name,
             "email": user.email,
-            "role": role_names.get(role, "Employee"),
+            "role": role_names.get(
+                role,
+                "Employee",
+            ),
             "role_code": role,
         }
     )
@@ -329,6 +368,7 @@ def google_calendar_test(request):
     stored_credentials = request.session.get("google_calendar_credentials")
 
     if not stored_credentials:
+
         return JsonResponse(
             {
                 "status": "error",
@@ -339,7 +379,7 @@ def google_calendar_test(request):
 
     credentials = Credentials(
         token=stored_credentials["token"],
-        refresh_token=stored_credentials["refresh_token"],
+        refresh_token=stored_credentials.get("refresh_token"),
         token_uri=stored_credentials["token_uri"],
         client_id=stored_credentials["client_id"],
         client_secret=stored_credentials["client_secret"],
@@ -352,20 +392,27 @@ def google_calendar_test(request):
 
     calendars = []
 
-    for calendar in calendar_list.get("items", []):
+    for calendar in calendar_list.get(
+        "items",
+        [],
+    ):
+
         calendars.append(
             {
                 "id": calendar.get("id"),
                 "summary": calendar.get("summary"),
                 "description": calendar.get("description"),
-                "primary": calendar.get("primary", False),
+                "primary": calendar.get(
+                    "primary",
+                    False,
+                ),
             }
         )
 
     return JsonResponse(
         {
             "status": "success",
-            "message": "Google Calendar API is working.",
+            "message": ("Google Calendar API is working."),
             "calendars": calendars,
         }
     )
@@ -377,22 +424,25 @@ def google_calendar_callback(request):
     """
 
     state = request.session.get("google_oauth_state")
+
     code_verifier = request.session.get("google_oauth_code_verifier")
 
     if not state:
+
         return JsonResponse(
             {
                 "status": "error",
-                "message": "OAuth session state is missing.",
+                "message": ("OAuth session state is missing."),
             },
             status=400,
         )
 
     if not code_verifier:
+
         return JsonResponse(
             {
                 "status": "error",
-                "message": "OAuth code verifier is missing.",
+                "message": ("OAuth code verifier is missing."),
             },
             status=400,
         )
@@ -421,6 +471,7 @@ def google_calendar_callback(request):
         "google_oauth_state",
         None,
     )
+
     request.session.pop(
         "google_oauth_code_verifier",
         None,
@@ -429,7 +480,7 @@ def google_calendar_callback(request):
     return JsonResponse(
         {
             "status": "success",
-            "message": "Google Calendar connected successfully.",
+            "message": ("Google Calendar connected successfully."),
         }
     )
 
@@ -446,6 +497,7 @@ def permissions_api(request):
     roles = {}
 
     for role, permissions in permission_engine.ROLE_PERMISSIONS.items():
+
         roles[role] = sorted(list(permissions))
 
     return Response(
@@ -469,47 +521,58 @@ def agents_api(request):
             "agents": [
                 {
                     "name": "Calendar Agent",
-                    "description": "Handles Google Calendar events and calendar-related questions",
+                    "description": (
+                        "Handles Google Calendar events "
+                        "and calendar-related questions"
+                    ),
                 },
                 {
                     "name": "HR Agent",
-                    "description": "Handles employee and HR-related questions",
+                    "description": ("Handles employee and " "HR-related questions"),
                 },
                 {
                     "name": "Sales Agent",
-                    "description": "Handles sales and CRM-related questions",
+                    "description": ("Handles sales and CRM-related " "questions"),
                 },
                 {
                     "name": "Project Agent",
-                    "description": "Handles project and task-related questions",
+                    "description": ("Handles project and task-related " "questions"),
                 },
                 {
                     "name": "Finance Agent",
-                    "description": "Handles finance and financial summary questions",
+                    "description": (
+                        "Handles finance and financial " "summary questions"
+                    ),
                 },
                 {
                     "name": "Marketing Agent",
-                    "description": "Handles marketing-related questions",
+                    "description": ("Handles marketing-related " "questions"),
                 },
                 {
                     "name": "Developer Agent",
-                    "description": "Handles software development questions",
+                    "description": ("Handles software development " "questions"),
                 },
                 {
                     "name": "QA Agent",
-                    "description": "Handles quality assurance and testing questions",
+                    "description": (
+                        "Handles quality assurance " "and testing questions"
+                    ),
                 },
                 {
                     "name": "Operations Agent",
-                    "description": "Handles business operations and workflow questions",
+                    "description": (
+                        "Handles business operations " "and workflow questions"
+                    ),
                 },
                 {
                     "name": "Reporting Agent",
-                    "description": "Handles business reports and summaries",
+                    "description": ("Handles business reports " "and summaries"),
                 },
                 {
                     "name": "GitHub Agent",
-                    "description": "Handles GitHub repository and cloud development questions",
+                    "description": (
+                        "Handles GitHub repository " "and cloud development questions"
+                    ),
                 },
             ],
         }
