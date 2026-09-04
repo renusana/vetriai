@@ -39,15 +39,37 @@ class AgentRegistry:
     def find_agent(self, request):
         """
         Return the best matching agent.
-
-        GitHub-specific requests are checked first so that
-        generic reporting keywords such as "summary" do not
-        incorrectly capture GitHub requests.
         """
 
         print("USER REQUEST:", request)
 
         request_lower = request.lower()
+
+        # -------------------------------------------------
+        # HR-specific priority
+        # -------------------------------------------------
+
+        hr_keywords = [
+            "reporting manager",
+            "who is the reporting manager",
+            "planned leave",
+            "emergency leave",
+            "work from home",
+            "wfh",
+            "hr policy",
+            "leave policy",
+            "employee policy",
+        ]
+
+        if any(keyword in request_lower for keyword in hr_keywords):
+
+            for agent in self.agents:
+
+                if agent.name == "HR Agent":
+
+                    print("SELECTED AGENT:", agent.name)
+
+                    return agent
 
         # -------------------------------------------------
         # GitHub-specific priority
