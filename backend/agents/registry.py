@@ -10,6 +10,7 @@ from .project_agent import ProjectAgent
 from .reporting_agent import ReportingAgent
 from .calendar_agent import CalendarAgent
 from .customer_support_agent import CustomerSupportAgent
+from .cloud_storage_agent import CloudStorageAgent
 
 
 class AgentRegistry:
@@ -32,6 +33,7 @@ class AgentRegistry:
             OperationsAgent(),
             ReportingAgent(),
             GitHubAgent(),
+            CloudStorageAgent(),
         ]
 
     def get_agents(self):
@@ -160,6 +162,24 @@ class AgentRegistry:
 
                     print("SELECTED AGENT:", agent.name)
 
+                    return agent
+        # -------------------------------------------------
+        # Cloud Storage priority block
+        # -------------------------------------------------
+
+        cloud_storage_keywords = [
+            "cloud storage",
+            "storage summary",
+            "storage usage",
+            "cloud files",
+            "cloud documents",
+            "recent files",
+        ]
+
+        if any(keyword in request_lower for keyword in cloud_storage_keywords):
+            for agent in self.agents:
+                if agent.name == "Cloud Storage Agent":
+                    print("SELECTED AGENT:", agent.name)
                     return agent
 
         # -------------------------------------------------

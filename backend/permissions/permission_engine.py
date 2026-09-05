@@ -37,6 +37,7 @@ class PermissionEngine:
             "view_qa",
             "view_operations",
             "view_customer_support",
+            "view_cloud_storage",
         },
         "admin": {
             "view_sales",
@@ -61,6 +62,7 @@ class PermissionEngine:
             "view_own_tasks",
             "view_own_projects",
             "view_customer_support",
+            "view_cloud_storage",
         },
     }
 

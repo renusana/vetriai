@@ -7,6 +7,7 @@ from .crm_tool import CRMTool
 from .project_tool import ProjectTool
 from .github_tool import GitHubTool
 from .reporting_tool import ReportingTool
+from .cloud_storage_tool import CloudStorageTool
 
 from approvals.approval_workflow import ApprovalWorkflow
 from audit_logs.utils import create_audit_log
@@ -30,6 +31,7 @@ class ToolRegistry:
             "project_tool": ProjectTool(),
             "github_tool": GitHubTool(),
             "reporting_tool": ReportingTool(),
+            "cloud_storage_tool": CloudStorageTool(),
         }
 
         self.approval_workflow = ApprovalWorkflow(executor=self.execute_approved_action)
@@ -58,6 +60,9 @@ class ToolRegistry:
             "Reporting Agent": {
                 "database_tool",
                 "reporting_tool",
+            },
+            "Cloud Storage Agent": {
+                "cloud_storage_tool",
             },
         }
 
