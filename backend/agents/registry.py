@@ -9,6 +9,7 @@ from .sales_agent import SalesAgent
 from .project_agent import ProjectAgent
 from .reporting_agent import ReportingAgent
 from .calendar_agent import CalendarAgent
+from .customer_support_agent import CustomerSupportAgent
 
 
 class AgentRegistry:
@@ -26,6 +27,7 @@ class AgentRegistry:
             FinanceAgent(),
             MarketingAgent(),
             DeveloperAgent(),
+            CustomerSupportAgent(),
             QAAgent(),
             OperationsAgent(),
             ReportingAgent(),
