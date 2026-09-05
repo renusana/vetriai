@@ -516,6 +516,14 @@ function AgentOrchestrator() {
                     <option>Project Agent</option>
                     <option>Reporting Agent</option>
                     <option>Calendar Agent</option>
+                    <option>Finance Agent</option>
+                    <option>Marketing Agent</option>
+                    <option>Developer Agent</option>
+                    <option>Customer Support Agent</option>
+                    <option>Operations Agent</option>
+                    <option>QA Agent</option>
+                    <option>GitHub Agent</option>
+                    <option>Cloud Storage Agent</option>
                   </select>
 
                 </div>
@@ -544,6 +552,8 @@ function AgentOrchestrator() {
                     <option>crm_tool</option>
                     <option>project_tool</option>
                     <option>reporting_tool</option>
+                    <option>github_tool</option>
+                    <option>cloud_storage_tool</option>
                   </select>
 
                 </div>
