@@ -13,6 +13,10 @@ class AIOrchestrator:
         self.registry = AgentRegistry()
         self.permission_engine = PermissionEngine()
 
+    # =========================================================
+    # Available Agents
+    # =========================================================
+
     def get_available_agents(self):
 
         return [
@@ -22,6 +26,10 @@ class AIOrchestrator:
             }
             for agent in self.registry.get_agents()
         ]
+
+    # =========================================================
+    # Intent Understanding - Single Agent
+    # =========================================================
 
     def understand_intent(self, request):
 
@@ -92,7 +100,7 @@ class AIOrchestrator:
         return any(keyword in request_lower for keyword in knowledge_keywords)
 
     # =========================================================
-    # Process Management Query
+    # Management Multi-Agent Query
     # =========================================================
 
     def process_management_query(
@@ -133,7 +141,7 @@ class AIOrchestrator:
             "Project Agent": "What are the upcoming project deadlines?",
             "Sales Agent": "What customer follow-ups are pending?",
             "Finance Agent": "Show the finance summary.",
-            "Calendar Agent": "What meetings and events are scheduled tomorrow?",
+            "Calendar Agent": ("What meetings and events are scheduled tomorrow?"),
         }
 
         all_agents = self.registry.get_agents()
@@ -150,10 +158,6 @@ class AIOrchestrator:
 
             print("RUNNING AGENT:", agent.name)
 
-            # -------------------------------------------------
-            # Get permission required by the agent
-            # -------------------------------------------------
-
             required_permission = None
 
             if hasattr(agent, "get_required_permission"):
@@ -166,7 +170,7 @@ class AIOrchestrator:
                 )
 
             # -------------------------------------------------
-            # Permission check
+            # Permission Check
             # -------------------------------------------------
 
             if required_permission:
@@ -199,7 +203,7 @@ class AIOrchestrator:
                     continue
 
             # -------------------------------------------------
-            # Agent-specific request
+            # Agent-specific Request
             # -------------------------------------------------
 
             agent_request = agent_requests.get(
@@ -213,12 +217,11 @@ class AIOrchestrator:
             )
 
             # -------------------------------------------------
-            # Execute agent
+            # Execute Agent
             # -------------------------------------------------
 
             try:
 
-                # Calendar Agent requires Google credentials
                 if agent.name == "Calendar Agent":
 
                     agent_result = agent.process(
@@ -227,7 +230,6 @@ class AIOrchestrator:
                         credentials=credentials,
                     )
 
-                # All other agents do not require credentials
                 else:
 
                     agent_result = agent.process(
@@ -323,6 +325,202 @@ class AIOrchestrator:
         }
 
     # =========================================================
+    # Generic Multi-Agent Query
+    # =========================================================
+
+    def process_multi_agent_query(
+        self,
+        request,
+        user,
+        role="employee",
+        credentials=None,
+    ):
+        """
+        Execute multiple relevant agents for one user request
+        and combine their results into one response.
+        """
+
+        print("========================================")
+        print("MULTI-AGENT QUERY")
+        print("REQUEST:", request)
+        print("========================================")
+
+        # -----------------------------------------------------
+        # Find all relevant agents
+        # -----------------------------------------------------
+
+        selected_agents = self.registry.find_relevant_agents(request)
+
+        print(
+            "SELECTED MULTI-AGENTS:",
+            [agent.name for agent in selected_agents],
+        )
+
+        results = []
+
+        # =====================================================
+        # Execute Each Agent
+        # =====================================================
+
+        for agent in selected_agents:
+
+            print("========================================")
+            print("RUNNING MULTI-AGENT:", agent.name)
+            print("========================================")
+
+            # -------------------------------------------------
+            # Permission
+            # -------------------------------------------------
+
+            required_permission = None
+
+            if hasattr(agent, "get_required_permission"):
+
+                required_permission = agent.get_required_permission(request)
+
+            if required_permission:
+
+                permission_result = self.permission_engine.check_permission(
+                    role,
+                    required_permission,
+                )
+
+                if not permission_result["allowed"]:
+
+                    print(
+                        "PERMISSION DENIED:",
+                        agent.name,
+                        required_permission,
+                    )
+
+                    results.append(
+                        {
+                            "agent": agent.name,
+                            "status": "denied",
+                            "data": {},
+                            "message": (
+                                f"{agent.name} information "
+                                "is not available for your role."
+                            ),
+                        }
+                    )
+
+                    continue
+
+            # -------------------------------------------------
+            # Execute Agent
+            # -------------------------------------------------
+
+            try:
+
+                # Calendar requires Google credentials
+                if agent.name == "Calendar Agent":
+
+                    agent_result = agent.process(
+                        request,
+                        user,
+                        credentials=credentials,
+                    )
+
+                else:
+
+                    agent_result = agent.process(
+                        request,
+                        user,
+                    )
+
+                print(
+                    "AGENT RESULT:",
+                    agent.name,
+                    agent_result,
+                )
+
+                results.append(agent_result)
+
+            except Exception as error:
+
+                print(
+                    f"ERROR FROM {agent.name}:",
+                    str(error),
+                )
+
+                results.append(
+                    {
+                        "agent": agent.name,
+                        "status": "error",
+                        "data": {},
+                        "message": (
+                            f"{agent.name} could not retrieve "
+                            "the requested information."
+                        ),
+                    }
+                )
+
+        # =====================================================
+        # Combine Results
+        # =====================================================
+
+        successful_results = [
+            result for result in results if result.get("status") == "success"
+        ]
+
+        if not successful_results:
+
+            response_message = (
+                "I could not retrieve the requested "
+                "information from the available agents."
+            )
+
+        else:
+
+            response_sections = []
+
+            for result in successful_results:
+
+                agent_name = result.get(
+                    "agent",
+                    "Business Agent",
+                )
+
+                message = result.get(
+                    "message",
+                    "",
+                )
+
+                if message:
+
+                    response_sections.append(f"{agent_name}:\n{message}")
+
+            response_message = "\n\n".join(response_sections)
+
+        # =====================================================
+        # Audit Log
+        # =====================================================
+
+        create_audit_log(
+            user=user,
+            agent="Multi-Agent Orchestrator",
+            request=request,
+            action="Multi-agent request",
+            approval="Not required",
+            result=response_message,
+        )
+
+        # =====================================================
+        # Return Combined Result
+        # =====================================================
+
+        return {
+            "status": "success",
+            "intent": "multi_agent",
+            "agent": "Multi-Agent Orchestrator",
+            "response": response_message,
+            "data": {
+                "agent_results": results,
+            },
+        }
+
+    # =========================================================
     # Main Request Processor
     # =========================================================
 
@@ -335,11 +533,18 @@ class AIOrchestrator:
         credentials=None,
     ):
 
+        print("========================================")
+        print("AI ORCHESTRATOR")
+        print("REQUEST:", request)
+        print("========================================")
+
         # =====================================================
         # Step 1: Management / Multi-Agent Query
         # =====================================================
 
         if self.is_management_query(request):
+
+            print("MANAGEMENT QUERY DETECTED")
 
             return self.process_management_query(
                 request=request,
@@ -349,7 +554,37 @@ class AIOrchestrator:
             )
 
         # =====================================================
-        # Step 2: Understand Intent
+        # Step 2: Generic Multi-Agent Detection
+        # =====================================================
+
+        selected_agents = self.registry.find_relevant_agents(request)
+
+        print(
+            "RELEVANT AGENTS:",
+            [agent.name for agent in selected_agents],
+        )
+
+        # -----------------------------------------------------
+        # If two or more agents match, execute them together.
+        # -----------------------------------------------------
+
+        if len(selected_agents) >= 2:
+
+            print(
+                "MULTI-AGENT REQUEST DETECTED:",
+                len(selected_agents),
+                "agents",
+            )
+
+            return self.process_multi_agent_query(
+                request=request,
+                user=user,
+                role=role,
+                credentials=credentials,
+            )
+
+        # =====================================================
+        # Step 3: Single-Agent Intent
         # =====================================================
 
         intent_result = self.understand_intent(request)
@@ -359,7 +594,7 @@ class AIOrchestrator:
         is_knowledge_question = self.is_knowledge_question(request)
 
         # =====================================================
-        # Step 3: No Agent Found
+        # Step 4: No Agent Found
         # =====================================================
 
         if agent is None:
@@ -386,7 +621,7 @@ class AIOrchestrator:
             }
 
         # =====================================================
-        # Step 4: Permission Check
+        # Step 5: Permission Check
         # =====================================================
 
         required_permission = permission
@@ -426,12 +661,12 @@ class AIOrchestrator:
                 }
 
         # =====================================================
-        # Step 5: Agent Processing
+        # Step 6: Agent Processing
         # =====================================================
 
         try:
 
-            # Calendar Agent requires Google credentials
+            # Calendar requires Google credentials
             if agent.name == "Calendar Agent":
 
                 agent_result = agent.process(
@@ -440,7 +675,6 @@ class AIOrchestrator:
                     credentials=credentials,
                 )
 
-            # All other agents do not require credentials
             else:
 
                 agent_result = agent.process(
@@ -477,7 +711,7 @@ class AIOrchestrator:
             }
 
         # =====================================================
-        # Step 6: Audit Log
+        # Step 7: Audit Log
         # =====================================================
 
         create_audit_log(
@@ -494,7 +728,7 @@ class AIOrchestrator:
         )
 
         # =====================================================
-        # Step 7: Return Result
+        # Step 8: Return Single-Agent Result
         # =====================================================
 
         return {
