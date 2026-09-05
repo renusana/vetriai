@@ -133,6 +133,36 @@ class AgentRegistry:
                     return agent
 
         # -------------------------------------------------
+        # Customer Support-specific priority
+        # -------------------------------------------------
+
+        customer_support_keywords = [
+            "customer support",
+            "customer service",
+            "support",
+            "customer issue",
+            "customer issues",
+            "complaint",
+            "complaints",
+            "ticket",
+            "tickets",
+            "support request",
+            "support requests",
+            "customer problem",
+            "customer problems",
+            "customer complaint",
+        ]
+
+        if any(keyword in request_lower for keyword in customer_support_keywords):
+
+            for agent in self.agents:
+                if agent.name == "Customer Support Agent":
+
+                    print("SELECTED AGENT:", agent.name)
+
+                    return agent
+
+        # -------------------------------------------------
         # Normal agent routing
         # -------------------------------------------------
 
