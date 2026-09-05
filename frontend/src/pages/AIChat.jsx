@@ -4,6 +4,8 @@ import "./AIChat.css";
 const API_BASE_URL =
   "https://vetri-ai-backend-9maw.onrender.com/api";
 
+const AI_BOT_IMAGE = "/ai-bot.gif";
+
 function AIChat() {
   const [messages, setMessages] = useState([
     {
@@ -34,10 +36,6 @@ function AIChat() {
       }
 
       try {
-        /*
-         * Get all conversations belonging to
-         * the currently authenticated user.
-         */
         const response = await fetch(
           `${API_BASE_URL}/conversations/`,
           {
@@ -57,19 +55,11 @@ function AIChat() {
 
         const conversations = data.conversations || [];
 
-        /*
-         * If the user has previous conversations,
-         * use the latest one.
-         */
         if (conversations.length > 0) {
           const latestConversation = conversations[0];
 
           setConversationId(latestConversation.id);
 
-          /*
-           * Get the complete conversation including
-           * all messages.
-           */
           const detailResponse = await fetch(
             `${API_BASE_URL}/conversations/${latestConversation.id}/`,
             {
@@ -92,14 +82,6 @@ function AIChat() {
           const savedMessages =
             detailData.conversation?.messages || [];
 
-          /*
-           * Convert backend message format:
-           *
-           * user      -> user
-           * assistant -> ai
-           *
-           * content -> text
-           */
           const formattedMessages = savedMessages.map(
             (message) => ({
               sender:
@@ -136,6 +118,9 @@ function AIChat() {
     });
   }, [messages, isLoading]);
 
+  /*
+   * Send message to Vetri AI.
+   */
   const handleSend = async () => {
     const trimmedQuestion = question.trim();
 
@@ -175,12 +160,6 @@ function AIChat() {
     }
 
     try {
-      /*
-       * Send the conversation ID when available.
-       *
-       * If it is null, the backend will create a
-       * new conversation automatically.
-       */
       const requestBody = {
         message: trimmedQuestion,
       };
@@ -189,15 +168,6 @@ function AIChat() {
         requestBody.conversation_id = conversationId;
       }
 
-      /*
-       * IMPORTANT:
-       *
-       * credentials: "include"
-       * sends the Django session cookie.
-       *
-       * This is required for Google Calendar OAuth
-       * credentials stored in the Django session.
-       */
       const response = await fetch(
         `${API_BASE_URL}/chat/`,
         {
@@ -219,12 +189,6 @@ function AIChat() {
 
       const data = await response.json();
 
-      /*
-       * Store conversation ID returned by backend.
-       *
-       * This is especially important when this is
-       * the first message of a new conversation.
-       */
       if (data.conversation_id) {
         setConversationId(data.conversation_id);
       }
@@ -262,6 +226,9 @@ function AIChat() {
     }
   };
 
+  /*
+   * Enter key support.
+   */
   const handleKeyDown = (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -269,6 +236,9 @@ function AIChat() {
     }
   };
 
+  /*
+   * Suggestion button.
+   */
   const handleSuggestion = (text) => {
     setQuestion(text);
     inputRef.current?.focus();
@@ -277,7 +247,9 @@ function AIChat() {
   return (
     <div className="ai-chat-page">
 
-      {/* Page Header */}
+      {/* =====================================================
+          PAGE HEADER
+      ===================================================== */}
 
       <div className="ai-chat-topbar">
 
@@ -298,21 +270,37 @@ function AIChat() {
 
       </div>
 
-      {/* Chat Container */}
+
+      {/* =====================================================
+          CHAT CONTAINER
+      ===================================================== */}
 
       <div className="ai-chat-container">
 
-        {/* Chat Header */}
+
+        {/* ===================================================
+            CHAT HEADER
+        =================================================== */}
 
         <div className="ai-chat-header">
 
           <div className="ai-chat-brand">
 
+            {/* Animated AI GIF */}
+
             <div className="ai-chat-avatar">
-              <i className="bi bi-stars"></i>
+
+              <img
+                src={AI_BOT_IMAGE}
+                alt="Vetri AI"
+                className="ai-bot-gif"
+              />
+
             </div>
 
+
             <div>
+
               <h5 className="mb-1">
                 Vetri AI BO Assistant
               </h5>
@@ -321,9 +309,11 @@ function AIChat() {
                 <span></span>
                 Ready to assist
               </div>
+
             </div>
 
           </div>
+
 
           <div className="ai-chat-header-icon">
             <i className="bi bi-three-dots-vertical"></i>
@@ -331,18 +321,37 @@ function AIChat() {
 
         </div>
 
-        {/* Messages */}
+
+        {/* ===================================================
+            MESSAGES
+        =================================================== */}
 
         <div className="ai-chat-messages">
+
+
+          {/* =================================================
+              WELCOME SECTION
+          ================================================= */}
 
           {!isLoadingHistory &&
             messages.length === 1 &&
             messages[0].sender === "ai" && (
+
               <div className="ai-welcome">
 
+
+                {/* Bot GIF */}
+
                 <div className="ai-welcome-icon">
-                  <i className="bi bi-stars"></i>
+
+                  <img
+                    src={AI_BOT_IMAGE}
+                    alt="Vetri AI Assistant"
+                    className="ai-welcome-bot"
+                  />
+
                 </div>
+
 
                 <h4>
                   How can I help you?
@@ -352,6 +361,9 @@ function AIChat() {
                   Ask me about employees, projects,
                   sales, reports, tasks and more.
                 </p>
+
+
+                {/* Quick Suggestions */}
 
                 <div className="ai-suggestions">
 
@@ -367,6 +379,7 @@ function AIChat() {
                     Finance summary
                   </button>
 
+
                   <button
                     type="button"
                     onClick={() =>
@@ -378,6 +391,7 @@ function AIChat() {
                     <i className="bi bi-kanban"></i>
                     My projects
                   </button>
+
 
                   <button
                     type="button"
@@ -394,7 +408,13 @@ function AIChat() {
                 </div>
 
               </div>
+
             )}
+
+
+          {/* =================================================
+              CHAT MESSAGES
+          ================================================= */}
 
           {messages.map((message, index) => (
 
@@ -406,13 +426,29 @@ function AIChat() {
                 }`}
             >
 
-              {/* AI Avatar */}
+
+              {/* =================================================
+                  AI BOT AVATAR
+              ================================================= */}
 
               {message.sender === "ai" && (
+
                 <div className="message-avatar ai-avatar">
-                  <i className="bi bi-stars"></i>
+
+                  <img
+                    src={AI_BOT_IMAGE}
+                    alt="Vetri AI"
+                    className="ai-message-bot"
+                  />
+
                 </div>
+
               )}
+
+
+              {/* =================================================
+                  MESSAGE BUBBLE
+              ================================================= */}
 
               <div
                 className={`ai-message ${message.sender === "user"
@@ -422,17 +458,26 @@ function AIChat() {
               >
 
                 <div className="message-name">
+
                   {message.sender === "user"
                     ? "You"
                     : "Vetri AI"}
+
                 </div>
+
 
                 <div className="message-text">
                   {message.text}
                 </div>
 
+
+                {/* =================================================
+                    METADATA
+                ================================================= */}
+
                 {message.sender === "ai" &&
                   message.metadata && (
+
                     <div className="ai-message-metadata">
 
                       <div>
@@ -457,30 +502,49 @@ function AIChat() {
                       </div>
 
                     </div>
+
                   )}
 
               </div>
 
-              {/* User Avatar */}
+
+              {/* =================================================
+                  USER AVATAR
+              ================================================= */}
 
               {message.sender === "user" && (
+
                 <div className="message-avatar user-avatar">
+
                   <i className="bi bi-person-fill"></i>
+
                 </div>
+
               )}
 
             </div>
 
           ))}
 
-          {/* Loading */}
+
+          {/* =================================================
+              TYPING INDICATOR
+          ================================================= */}
 
           {isLoading && (
+
             <div className="ai-message-row ai-message-row-left">
 
               <div className="message-avatar ai-avatar">
-                <i className="bi bi-stars"></i>
+
+                <img
+                  src={AI_BOT_IMAGE}
+                  alt="Vetri AI"
+                  className="ai-message-bot"
+                />
+
               </div>
+
 
               <div className="ai-message assistant-message typing-message">
 
@@ -488,22 +552,30 @@ function AIChat() {
                   Vetri AI
                 </div>
 
+
                 <div className="typing-indicator">
+
                   <span></span>
                   <span></span>
                   <span></span>
+
                 </div>
 
               </div>
 
             </div>
+
           )}
+
 
           <div ref={messagesEndRef}></div>
 
         </div>
 
-        {/* Input */}
+
+        {/* =====================================================
+            INPUT AREA
+        ===================================================== */}
 
         <div className="ai-chat-input-area">
 
@@ -522,6 +594,7 @@ function AIChat() {
               disabled={isLoading}
             />
 
+
             <button
               type="button"
               className="ai-send-button"
@@ -531,14 +604,20 @@ function AIChat() {
               }
               aria-label="Send message"
             >
+
               <i className="bi bi-send-fill"></i>
+
             </button>
 
           </div>
 
+
           <div className="ai-chat-footer-text">
+
             <i className="bi bi-shield-check"></i>
+
             Vetri AI can make mistakes. Verify important information.
+
           </div>
 
         </div>
