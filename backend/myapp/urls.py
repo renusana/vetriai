@@ -13,6 +13,7 @@ from .views import (
     google_calendar_callback,
     google_calendar_test,
     dashboard_api,
+    generate_reminders_api,
 )
 
 urlpatterns = [
@@ -77,5 +78,10 @@ urlpatterns = [
         "calendar/test/",
         google_calendar_test,
         name="google-calendar-test",
+    ),
+    path(
+        "automation/reminders/",
+        generate_reminders_api,
+        name="generate-reminders-api",
     ),
 ]

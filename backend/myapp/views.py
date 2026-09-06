@@ -1,3 +1,4 @@
+from automation.reminder_service import ReminderService
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.utils import timezone
@@ -781,3 +782,37 @@ def agents_api(request):
             ],
         }
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def generate_reminders_api(request):
+    """
+    Generate automated reminders for the authenticated user.
+    """
+
+    user = request.user
+
+    try:
+        reminder_service = ReminderService()
+
+        result = reminder_service.generate_reminders(user=user)
+
+        return Response(result)
+
+    except Exception as error:
+
+        import traceback
+
+        print("========== REMINDER API ERROR ==========")
+        print("ERROR:", str(error))
+        traceback.print_exc()
+        print("========================================")
+
+        return Response(
+            {
+                "status": "error",
+                "message": "Unable to generate automated reminders.",
+            },
+            status=500,
+        )
