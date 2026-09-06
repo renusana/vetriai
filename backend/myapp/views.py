@@ -1,4 +1,5 @@
 from automation.reminder_service import ReminderService
+from automation.alert_service import AlertService
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.utils import timezone
@@ -813,6 +814,43 @@ def generate_reminders_api(request):
             {
                 "status": "error",
                 "message": "Unable to generate automated reminders.",
+            },
+            status=500,
+        )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def generate_alerts_api(request):
+    """
+    Generate intelligent business alerts
+    for the authenticated user.
+    """
+
+    user = request.user
+
+    try:
+        alert_service = AlertService()
+
+        result = alert_service.generate_alerts(
+            user=user,
+        )
+
+        return Response(result)
+
+    except Exception as error:
+
+        import traceback
+
+        print("========== ALERT API ERROR ==========")
+        print("ERROR:", str(error))
+        traceback.print_exc()
+        print("====================================")
+
+        return Response(
+            {
+                "status": "error",
+                "message": "Unable to generate intelligent alerts.",
             },
             status=500,
         )
