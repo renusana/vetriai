@@ -88,3 +88,31 @@ export async function getAgents() {
     return data;
 }
 
+export async function getDashboard() {
+    const accessToken = localStorage.getItem('access_token');
+
+    if (!accessToken) {
+        throw new Error('You are not logged in.');
+    }
+
+    const response = await fetch(
+        `${API_BASE_URL}/dashboard/`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.detail || 'Failed to fetch dashboard data.'
+        );
+    }
+
+    return data;
+}

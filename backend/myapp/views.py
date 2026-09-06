@@ -14,6 +14,10 @@ from .models import UserProfile, Conversation, ChatMessage
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from tools.finance_tool import FinanceTool
+from tools.crm_tool import CRMTool
+from tools.database_tool import DatabaseTool
+from tools.project_tool import ProjectTool
 
 from permissions.permission_engine import PermissionEngine
 from agents.orchestrator import AIOrchestrator
@@ -319,6 +323,206 @@ def current_user_api(request):
             "role_code": role,
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def dashboard_api(request):
+    """
+    Return consolidated dashboard data for the authenticated user.
+    """
+
+    user = request.user
+
+    # -----------------------------------------
+    # Initialize controlled tools
+    # -----------------------------------------
+
+    finance_tool = FinanceTool()
+    crm_tool = CRMTool()
+    database_tool = DatabaseTool()
+    project_tool = ProjectTool()
+
+    try:
+        # -----------------------------------------
+        # Finance
+        # -----------------------------------------
+
+        finance = finance_tool.execute(
+            action="get_finance_summary",
+            user=user,
+        )
+
+        # -----------------------------------------
+        # Sales / CRM
+        # -----------------------------------------
+
+        leads = crm_tool.execute(
+            action="get_leads",
+            user=user,
+        )
+
+        customers = crm_tool.execute(
+            action="get_customers",
+            user=user,
+        )
+
+        pending_followups = crm_tool.execute(
+            action="get_pending_followups",
+            user=user,
+        )
+
+        orders = crm_tool.execute(
+            action="get_orders",
+            user=user,
+        )
+
+        pending_orders = crm_tool.execute(
+            action="get_pending_orders",
+            user=user,
+        )
+
+        # -----------------------------------------
+        # HR / Database
+        # -----------------------------------------
+
+        employees = database_tool.execute(
+            action="get_employees",
+            user=user,
+        )
+
+        employees_on_leave = database_tool.execute(
+            action="get_employees_on_leave",
+            user=user,
+        )
+
+        attendance = database_tool.execute(
+            action="get_attendance",
+            user=user,
+        )
+
+        leave_information = database_tool.execute(
+            action="get_leave_information",
+            user=user,
+        )
+
+        # -----------------------------------------
+        # Projects
+        # -----------------------------------------
+
+        projects = project_tool.execute(
+            action="get_projects",
+            user=user,
+        )
+
+        project_status = project_tool.execute(
+            action="get_project_status",
+            user=user,
+        )
+
+        delayed_projects = project_tool.execute(
+            action="get_delayed_projects",
+            user=user,
+        )
+
+        project_deadlines = project_tool.execute(
+            action="get_project_deadlines",
+            user=user,
+        )
+
+        project_tasks = project_tool.execute(
+            action="get_project_tasks",
+            user=user,
+        )
+
+        # -----------------------------------------
+        # Return Dashboard
+        # -----------------------------------------
+
+        return Response(
+            {
+                "status": "success",
+                "dashboard": {
+                    "finance": finance.get(
+                        "data",
+                        {},
+                    ),
+                    "sales": leads.get(
+                        "data",
+                        {},
+                    ),
+                    "customers": customers.get(
+                        "data",
+                        {},
+                    ),
+                    "followups": pending_followups.get(
+                        "data",
+                        {},
+                    ),
+                    "orders": orders.get(
+                        "data",
+                        {},
+                    ),
+                    "pending_orders": pending_orders.get(
+                        "data",
+                        {},
+                    ),
+                    "employees": employees.get(
+                        "data",
+                        {},
+                    ),
+                    "employees_on_leave": employees_on_leave.get(
+                        "data",
+                        {},
+                    ),
+                    "attendance": attendance.get(
+                        "data",
+                        {},
+                    ),
+                    "leave": leave_information.get(
+                        "data",
+                        {},
+                    ),
+                    "projects": projects.get(
+                        "data",
+                        {},
+                    ),
+                    "project_status": project_status.get(
+                        "data",
+                        {},
+                    ),
+                    "delayed_projects": delayed_projects.get(
+                        "data",
+                        {},
+                    ),
+                    "deadlines": project_deadlines.get(
+                        "data",
+                        {},
+                    ),
+                    "tasks": project_tasks.get(
+                        "data",
+                        {},
+                    ),
+                },
+            }
+        )
+
+    except Exception as error:
+
+        import traceback
+
+        print("========== DASHBOARD API ERROR ==========")
+        print("ERROR:", str(error))
+        traceback.print_exc()
+        print("==========================================")
+
+        return Response(
+            {
+                "status": "error",
+                "message": "Dashboard data could not be loaded.",
+            },
+            status=500,
+        )
 
 
 @api_view(["GET"])

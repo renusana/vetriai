@@ -12,6 +12,7 @@ from .views import (
     google_calendar_login,
     google_calendar_callback,
     google_calendar_test,
+    dashboard_api,
 )
 
 urlpatterns = [
@@ -29,6 +30,11 @@ urlpatterns = [
         "auth/me/",
         current_user_api,
         name="current-user-api",
+    ),
+    path(
+        "dashboard/",
+        dashboard_api,
+        name="dashboard-api",
     ),
     path(
         "user-roles/",
