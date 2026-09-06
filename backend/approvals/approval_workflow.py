@@ -1,5 +1,8 @@
 from audit_logs.utils import create_audit_log
-from notifications.utils import create_approval_pending_notification
+from notifications.utils import (
+    create_approval_pending_notification,
+    create_approval_executed_notification,
+)
 
 
 class ApprovalWorkflow:
@@ -162,6 +165,18 @@ class ApprovalWorkflow:
             )
 
             action["execution_result"] = execution_result
+
+            # Create notification after successful approval and execution
+
+            if user:
+                create_approval_executed_notification(
+                    user=user,
+                    message=(
+                        f"{action['agent']} approved and executed "
+                        f"{action['action']} successfully."
+                    ),
+                    related_id=str(action_id),
+                )
 
             return {
                 "status": "approved",

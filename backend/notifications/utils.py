@@ -148,3 +148,23 @@ def create_deadline_notification(
         channel="in_app",
         related_id=related_id,
     )
+
+
+def create_approval_executed_notification(
+    user,
+    message,
+    related_id=None,
+):
+    """
+    Create a notification after an approved action is executed.
+    """
+
+    return create_notification(
+        user=user,
+        notification_type="approval_executed",
+        title="Action Approved & Executed",
+        message=message,
+        priority="high",
+        channel="in_app",
+        related_id=related_id,
+    )
