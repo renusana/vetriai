@@ -1,22 +1,54 @@
 from tools.crm_tool import CRMTool
 from tools.project_tool import ProjectTool
+from notifications.models import Notification
 from notifications.utils import create_notification
 
 
 class ReminderService:
     """
     Generates automated reminders from existing business data.
+    Prevents duplicate reminders for the same user and business item.
     """
 
     def __init__(self):
         self.crm_tool = CRMTool()
         self.project_tool = ProjectTool()
 
+    def create_reminder_if_not_exists(
+        self,
+        user,
+        notification_type,
+        title,
+        message,
+        priority,
+        related_id,
+    ):
+        """
+        Create a reminder only if the same reminder
+        does not already exist for the user.
+        """
+
+        existing_notification = Notification.objects.filter(
+            user=user,
+            notification_type=notification_type,
+            related_id=related_id,
+            is_read=False,
+        ).first()
+
+        if existing_notification:
+            return None
+
+        return create_notification(
+            user=user,
+            notification_type=notification_type,
+            title=title,
+            message=message,
+            priority=priority,
+            channel="in_app",
+            related_id=related_id,
+        )
+
     def generate_reminders(self, user):
-        """
-        Check business data and create reminders
-        for the logged-in user.
-        """
 
         reminders = []
 
@@ -45,7 +77,7 @@ class ReminderService:
                     0,
                 )
 
-                notification = create_notification(
+                notification = self.create_reminder_if_not_exists(
                     user=user,
                     notification_type="high_priority_lead",
                     title="Sales Follow-up Reminder",
@@ -55,11 +87,11 @@ class ReminderService:
                         f"{days_pending} days."
                     ),
                     priority="high",
-                    channel="in_app",
                     related_id=customer,
                 )
 
-                reminders.append(notification)
+                if notification:
+                    reminders.append(notification)
 
         # ==========================================
         # Pending Project Tasks
@@ -89,7 +121,11 @@ class ReminderService:
                     "Task",
                 )
 
-                notification = create_notification(
+                # Use project + task so different tasks
+                # in the same project don't conflict.
+                related_id = f"{project}:{task_name}"
+
+                notification = self.create_reminder_if_not_exists(
                     user=user,
                     notification_type="critical_project_risk",
                     title="Pending Project Task",
@@ -99,11 +135,11 @@ class ReminderService:
                         f"is still pending."
                     ),
                     priority="high",
-                    channel="in_app",
-                    related_id=project,
+                    related_id=related_id,
                 )
 
-                reminders.append(notification)
+                if notification:
+                    reminders.append(notification)
 
         # ==========================================
         # Upcoming Project Deadlines
@@ -130,7 +166,11 @@ class ReminderService:
                     "Unknown",
                 )
 
-                notification = create_notification(
+                # Include date so a future deadline
+                # can generate a new reminder.
+                related_id = f"{project}:{deadline_date}"
+
+                notification = self.create_reminder_if_not_exists(
                     user=user,
                     notification_type="deadline_approaching",
                     title="Project Deadline Reminder",
@@ -140,11 +180,11 @@ class ReminderService:
                         f"{deadline_date}."
                     ),
                     priority="high",
-                    channel="in_app",
-                    related_id=project,
+                    related_id=related_id,
                 )
 
-                reminders.append(notification)
+                if notification:
+                    reminders.append(notification)
 
         # ==========================================
         # Pending Orders
@@ -171,7 +211,7 @@ class ReminderService:
                     "Customer",
                 )
 
-                notification = create_notification(
+                notification = self.create_reminder_if_not_exists(
                     user=user,
                     notification_type="important_customer_issue",
                     title="Pending Order Reminder",
@@ -179,14 +219,14 @@ class ReminderService:
                         f"Order {order_id} " f"for {customer} " f"is still pending."
                     ),
                     priority="medium",
-                    channel="in_app",
                     related_id=order_id,
                 )
 
-                reminders.append(notification)
+                if notification:
+                    reminders.append(notification)
 
         return {
             "status": "success",
             "total_reminders": len(reminders),
-            "message": (f"{len(reminders)} automated " f"reminders generated."),
+            "message": (f"{len(reminders)} new automated " f"reminders generated."),
         }
