@@ -1,5 +1,6 @@
 from .base_agent import BaseAgent
 from knowledge_base.rag import RAGSystem
+from tools.reporting_tool import ReportingTool
 
 
 class ReportingAgent(BaseAgent):
@@ -10,6 +11,7 @@ class ReportingAgent(BaseAgent):
 
     def __init__(self):
         self.rag = RAGSystem()
+        self.reporting_tool = ReportingTool()
 
     def can_handle(self, request):
 
@@ -108,23 +110,43 @@ class ReportingAgent(BaseAgent):
                 }
 
         # ==========================================
-        # Existing Business Report
+        # Generate Business Report using ReportingTool
         # ==========================================
+
+        report_result = self.reporting_tool.execute(
+            "generate_daily_report",
+            user=user,
+        )
+
+        if report_result.get("status") != "success":
+
+            return {
+                "agent": self.name,
+                "status": "error",
+                "data": {},
+                "message": report_result.get(
+                    "message", "Unable to generate the daily report."
+                ),
+            }
+
+        report = report_result.get("data", {})
+
+        new_leads = report.get("new_leads", 0)
+        pending_followups = report.get("pending_followups", 0)
+        pending_orders = report.get("pending_orders", 0)
+        delayed_projects = report.get("delayed_projects", 0)
+        employees_on_leave = report.get("employees_on_leave", 0)
 
         return {
             "agent": self.name,
             "status": "success",
-            "data": {
-                "new_leads": 12,
-                "pending_followups": 5,
-                "pending_orders": 3,
-                "delayed_projects": 2,
-                "employees_on_leave": 2,
-            },
+            "data": report,
             "message": (
                 "Today's BO report: "
-                "12 new leads, 5 pending sales follow-ups, "
-                "3 pending orders, 2 delayed projects, "
-                "and 2 employees on leave."
+                f"{new_leads} new leads, "
+                f"{pending_followups} pending sales follow-ups, "
+                f"{pending_orders} pending orders, "
+                f"{delayed_projects} delayed projects, "
+                f"and {employees_on_leave} employees on leave."
             ),
         }
