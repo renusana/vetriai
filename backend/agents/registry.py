@@ -52,8 +52,8 @@ class AgentRegistry:
         """
         Return the best matching single agent.
 
-        This method is intentionally preserved for normal
-        single-agent requests.
+        Specific domain priorities are checked before
+        normal agent routing to avoid keyword conflicts.
         """
 
         print("USER REQUEST:", request)
@@ -81,6 +81,62 @@ class AgentRegistry:
             for agent in self.agents:
 
                 if agent.name == "HR Agent":
+
+                    print(
+                        "SELECTED AGENT:",
+                        agent.name,
+                    )
+
+                    return agent
+
+        # -----------------------------------------------------
+        # Finance-specific priority
+        # -----------------------------------------------------
+        #
+        # Revenue can belong to both Sales and Finance.
+        # Therefore:
+        # - "revenue" alone -> Finance
+        # - "finance revenue" -> Finance
+        # - "sales revenue" -> Sales
+        #
+        # This prevents Sales Agent from incorrectly capturing
+        # normal finance questions.
+
+        finance_keywords = [
+            "finance",
+            "financial",
+            "expense",
+            "expenses",
+            "profit",
+            "financial summary",
+        ]
+
+        sales_context_keywords = [
+            "sales",
+            "sale",
+            "lead",
+            "leads",
+            "order",
+            "orders",
+            "customer",
+            "customers",
+        ]
+
+        has_finance_keyword = any(
+            keyword in request_lower for keyword in finance_keywords
+        )
+
+        has_sales_context = any(
+            keyword in request_lower for keyword in sales_context_keywords
+        )
+
+        revenue_only_finance = "revenue" in request_lower and not has_sales_context
+
+        if has_finance_keyword or revenue_only_finance:
+
+            for agent in self.agents:
+
+                if agent.name == "Finance Agent":
 
                     print(
                         "SELECTED AGENT:",
@@ -341,10 +397,15 @@ class AgentRegistry:
         )
 
         # Revenue is shared between Sales and Finance.
-        # It alone should not create a multi-agent request.
+        # Revenue alone belongs to Finance.
+        #
+        # If the request explicitly contains a Sales keyword,
+        # Sales keeps its normal priority.
+
         if "revenue" in request_lower:
 
             if sales_score == 0 and finance_score == 0:
+
                 finance_score = 1
 
         # =====================================================
@@ -463,8 +524,6 @@ class AgentRegistry:
         # Other Agents
         # =====================================================
 
-        # These agents are included using their existing
-        # can_handle() implementation.
         other_agents = [
             agent
             for agent in self.agents
